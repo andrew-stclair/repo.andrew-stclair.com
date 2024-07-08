@@ -1,0 +1,44 @@
+
+# yamllint disable rule:truthy
+on:
+  push:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  REPO_NAME: debian
+  CODENAME: jammy
+  COMPONENTS: main
+  ARCHITECTURES: amd64 arm64
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact_id: ${{ steps.upload-artifact.outputs.artifact-id }}
+      keyring: ${{ steps.create-apt-repo.outputs.keyring }}
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - uses: morph027/apt-repo-action@v2
+        id: create-apt-repo
+        with:
+          repo-name: ${{ env.REPO_NAME }}
+          signing-key: ${{ secrets.SIGNING_KEY }}
+          codename: ${{ env.CODENAME }}
+          components: ${{ env.COMPONENTS }}
+          architectures: ${{ env.ARCHITECTURES }}
+          # import-from-repo-url: |
+          #   deb-amd64 https://repo.andrew-stclair.com/${{ env.REPO_NAME }}/ ${{ env.CODENAME }} ${{ env.COMPONENTS }}
+          #   deb-arm64 https://repo.andrew-stclair.com/${{ env.REPO_NAME }}/ ${{ env.CODENAME }} ${{ env.COMPONENTS }}
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages
+          path: ${{ steps.create-apt-repo.outputs.dir }}
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
