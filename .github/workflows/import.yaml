@@ -1,8 +1,10 @@
 on:
-  push:
-  schedule:
-    - cron: '0 0 1 * *'
   workflow_dispatch:
+    inputs:
+      package:
+        description: 'URL for the deb package'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -24,6 +26,11 @@ jobs:
     steps:
       - name: Setup Pages
         uses: actions/configure-pages@v4
+      - name: Download and name the package
+        run: |
+          mkdir packages
+          wget ${{ inputs.package }} -P packages
+          find ./packages -name '*.deb' | xargs -n 1 dpkg-name
       - uses: morph027/apt-repo-action@v3.1
         id: create-apt-repo
         with:
@@ -32,6 +39,7 @@ jobs:
           codename: ${{ env.CODENAME }}
           components: ${{ env.COMPONENTS }}
           architectures: ${{ env.ARCHITECTURES }}
+          scan-dir: packages
           import-from-repo-url: |
             deb-amd64 https://repo.andrew-stclair.com/ ${{ env.CODENAME }} ${{ env.COMPONENTS }}
             deb-arm64 https://repo.andrew-stclair.com/ ${{ env.CODENAME }} ${{ env.COMPONENTS }}
