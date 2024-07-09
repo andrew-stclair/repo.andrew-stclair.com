@@ -10,7 +10,7 @@ permissions:
 
 env:
   REPO_NAME: debian
-  CODENAME: jammy
+  CODENAME: bookworm
   COMPONENTS: main
   ARCHITECTURES: amd64 arm64
 
