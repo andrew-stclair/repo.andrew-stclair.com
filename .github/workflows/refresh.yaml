@@ -29,7 +29,7 @@ jobs:
         run: |
           python get-packages.py andrew-stclair ufw-applications
           for package in $(find packages -name "*.deb" -type f); do dpkg-name $package; done
-      - uses: morph027/apt-repo-action@v3.1
+      - uses: morph027/apt-repo-action@v3.5
         id: create-apt-repo
         with:
           repo-name: ${{ env.REPO_NAME }}
