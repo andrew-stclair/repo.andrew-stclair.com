@@ -23,7 +23,7 @@ jobs:
       keyring: ${{ steps.create-apt-repo.outputs.keyring }}
     steps:
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
       - uses: morph027/apt-repo-action@v3.1
         id: create-apt-repo
         with:
