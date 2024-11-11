@@ -26,6 +26,8 @@ jobs:
         uses: actions/configure-pages@v4
       - name: Download packages
         run: |
+          pwd
+          ls -la
           python get-packages.py andrew-stclair ufw-applications
           for package in $(find packages -name "*.deb" -type f); do dpkg-name $package; done
       - uses: morph027/apt-repo-action@v3.1
