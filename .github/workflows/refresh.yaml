@@ -24,6 +24,10 @@ jobs:
     steps:
       - name: Setup Pages
         uses: actions/configure-pages@v4
+      - name: Download packages
+        run: |
+          python get-packages.py andrew-stclair ufw-applications
+          for package in $(find packages -name "*.deb" -type f); do dpkg-name $package; done
       - uses: morph027/apt-repo-action@v3.1
         id: create-apt-repo
         with:
@@ -32,7 +36,7 @@ jobs:
           codename: ${{ env.CODENAME }}
           components: ${{ env.COMPONENTS }}
           architectures: ${{ env.ARCHITECTURES }}
-          # scan-dir: packages
+          scan-dir: packages
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
