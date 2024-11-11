@@ -22,8 +22,13 @@ jobs:
       artifact_id: ${{ steps.upload-artifact.outputs.artifact-id }}
       keyring: ${{ steps.create-apt-repo.outputs.keyring }}
     steps:
+      - uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Download packages
+        run: |
+          python get-packages.py andrew-stclair ufw-applications
+          for package in $(find packages -name "*.deb" -type f); do dpkg-name $package; done
       - uses: morph027/apt-repo-action@v3.1
         id: create-apt-repo
         with:
@@ -32,7 +37,8 @@ jobs:
           codename: ${{ env.CODENAME }}
           components: ${{ env.COMPONENTS }}
           architectures: ${{ env.ARCHITECTURES }}
-          # scan-dir: packages
+          scan-dir: packages
+          override: package-overrides
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
