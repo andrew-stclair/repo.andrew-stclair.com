@@ -1,8 +1,10 @@
 on:
-  push:
-  schedule:
-    - cron: '0 0 1 * *'
   workflow_dispatch:
+    inputs:
+      package:
+        description: 'URL for the deb package'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -22,14 +24,14 @@ jobs:
       artifact_id: ${{ steps.upload-artifact.outputs.artifact-id }}
       keyring: ${{ steps.create-apt-repo.outputs.keyring }}
     steps:
-      - uses: actions/checkout@v4
       - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Download packages
+        uses: actions/configure-pages@v4
+      - name: Download and name the package
         run: |
-          python get-packages.py andrew-stclair ufw-applications
-          for package in $(find packages -name "*.deb" -type f); do dpkg-name $package; done
-      - uses: morph027/apt-repo-action@v3.5
+          mkdir packages
+          wget ${{ inputs.package }} -P packages
+          find ./packages -name '*.deb' | xargs -n 1 dpkg-name
+      - uses: morph027/apt-repo-action@v3.1
         id: create-apt-repo
         with:
           repo-name: ${{ env.REPO_NAME }}
